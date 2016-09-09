@@ -9,12 +9,14 @@
 <h1>Voilà la liste des images :</h1>
 
 {% if icones %}
-	<div id="carre">
-    {%for ico in icones %}
-    <div id="miniatures">
-    <img src="{{url_for('static',filename=ico)}}"/>
-		{{ico}}
-		{{info[ico+"id"]}} {{info[ico+"datecreation"]}} {{info[ico+"datemodif"]}} {{info[ico+'kw']}}
+<div id="carre">
+	{%for ico in icones %}
+		{{info[ico['id']}}
+		<div id="miniatures">
+		<img src="{{url_for('static',filename=ico)}}"/>
+		date de creation : {{info[ico]['datecreation']}}
+		date de dernière modification: {{info[ico]['datemodif']}}
+		mots clés : {{info[ico]['kw']}}
 	{% endfor %}
 
 {% endif %}
