@@ -71,6 +71,7 @@ def recup_info(chemin):
 
 @app.route('/view/')
 def liste_upped():
+
     images = [img for img in os.listdir(DOSSIER_UPS) if extension_ok(img)] # la liste des images dans le dossier
     icones = ['ups/'+img for img in os.listdir(DOSSIER_UPS) if is_resized(img)]
     informations={}
@@ -78,9 +79,15 @@ def liste_upped():
         pat="[0-9]+"
         prog=re.compile(pat)
         id=prog.search(ico).group()
-        informations[ico] = id
-    #for ico in icones:
-        #informations['ico']=
+        informations[ico+"id"] = id
+        conn = sqlite3.connect('data.db')
+        cursor = conn.execute("select * from img where id=?",(informations[ico+'id'],))
+        for row in cursor:
+            informations[ico+"datecreation"]=row[2]
+            informations[ico+'datemodif']=row[3]
+            informations[ico+'kw']=row[4]
+
+
     return render_template('up_liste.html', images=images, icones=icones,info=informations)
 
 @app.route('/up/view/<nom>')

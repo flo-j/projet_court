@@ -14,7 +14,7 @@
     <div id="miniatures">
     <img src="{{url_for('static',filename=ico)}}"/>
 		{{ico}}
-		{{info[ico]}}
+		{{info[ico+"id"]}} {{info[ico+"datecreation"]}} {{info[ico+"datemodif"]}} {{info[ico+'kw']}}
 	{% endfor %}
 
 {% endif %}
