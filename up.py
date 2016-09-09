@@ -8,6 +8,7 @@ import os
 import sqlite3
 import PIL
 from PIL import Image
+import re
 
 app = Flask(__name__)
 app.secret_key = 'd66HR8dç"f_-àgjYYic*dh'
@@ -74,10 +75,13 @@ def liste_upped():
     icones = ['ups/'+img for img in os.listdir(DOSSIER_UPS) if is_resized(img)]
     informations={}
     for ico in icones:
-        informations['ico'] = "recup"
+        pat="[0-9]+"
+        prog=re.compile(pat)
+        id=prog.search(ico).group()
+        informations[ico] = id
     #for ico in icones:
         #informations['ico']=
-    return render_template('up_liste.html', images=images, icones=icones)
+    return render_template('up_liste.html', images=images, icones=icones,info=informations)
 
 @app.route('/up/view/<nom>')
 def upped(nom):

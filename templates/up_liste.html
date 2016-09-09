@@ -13,6 +13,8 @@
     {%for ico in icones %}
     <div id="miniatures">
     <img src="{{url_for('static',filename=ico)}}"/>
+		{{ico}}
+		{{info[ico]}}
 	{% endfor %}
 
 {% endif %}
