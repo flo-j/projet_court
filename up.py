@@ -69,6 +69,24 @@ def recup_info(chemin):
 
 
 
+def recup_info(id):
+    info={}
+    info["id"] = id
+    conn = sqlite3.connect('data.db')
+    cursor = conn.execute("select * from img where id=?",(informations[ico]['id'],))
+    for row in cursor:
+        info["datecreation"]=row[2]
+        info['datemodif']=row[3]
+        info['kw']=row[4]
+    return info
+
+
+def recup_id(chemin):
+     pat="[0-9]+"
+     prog=re.compile(pat)
+     id=prog.search(chemin).group()
+     return id
+
 @app.route('/view/')
 def liste_upped():
 
@@ -98,7 +116,7 @@ def upped(nom):
         return send_file(DOSSIER_UPS + nom, as_attachment=True) # on l'envoie
     else:
         flash(u'Fichier {nom} inexistant.'.format(nom=nom), 'error')
-        return redirect(url_for('liste_upped')) # sinon on redirige vers la liste des images, avec un message d'erreur
+        return redirect(url_for('up_image.html',nom=nom)) # sinon on redirige vers la liste des images, avec un message d'erreur
 
 if __name__ == '__main__':
     app.run(debug=True)
