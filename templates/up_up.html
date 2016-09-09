@@ -1,0 +1,14 @@
+{% extends 'up_squelette.html' %}
+
+{% block title %}Upload d'images{% endblock %}
+
+{% block main %}
+<h1>Choisissez une image à Uploader :</h1>
+<form action="" method="post" enctype="multipart/form-data">
+    <label for="fic">Fichier</label><input id="fic" type="file" name="fic" />
+    <label for="kw">Keywords </label><input id="kw" type="text" name="kw"/>
+
+    <input id="btsub" type="submit" value="Uploader" />
+</form>
+{% endblock %}
+

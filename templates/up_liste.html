@@ -1,0 +1,19 @@
+{% extends 'up_squelette.html' %}
+
+
+{% block title %}Liste des images{% endblock %}
+
+
+{% block main %}
+
+<h1>Voilà la liste des images :</h1>
+
+{% if icones %}
+	<div id="carre">
+    {%for ico in icones %}
+    <div id="miniatures">
+    <img src="{{url_for('static',filename=ico)}}"/>
+	{% endfor %}
+
+{% endif %}
+{% endblock %}

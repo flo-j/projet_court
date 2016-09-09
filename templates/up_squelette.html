@@ -1,0 +1,53 @@
+<!doctype html>
+<html class="no-js" lang="fr">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<title>{% block title %}{% endblock %}</title>
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Merienda One">
+	<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Port Lligat Slab">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='up.css') }}">
+</head>
+<body>
+<header>
+    <div id="titre_principal">
+        <h1>Anatomie en ligne</h1>
+    </div>
+    <nav id="menu">
+        <table class="left">
+            <tr>
+                <td id="menu1" >
+                    <p>Upload</p>
+                </td>
+                <td id="menu2">
+                    <p>Search</p>
+                </td>
+                <td id="menu3">
+                    <p></p>
+                </td>
+            </tr>
+        </table>
+        </nav>
+</header>
+
+{# on affiche les messages d'erreur puis les messages de succes #}
+{% for categorie in ['error', 'succes'] %}
+    {% with msgs = get_flashed_messages(category_filter=[categorie]) %}
+        {% if msgs %}
+        <ul class="flashed {{ categorie }}">
+            {% for m in msgs %}
+                <li>{{ m|safe }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    {% endwith %}
+{% endfor %}
+
+<div id="main">
+    {% block main %}{% endblock %}
+</div>
+
+</body>
+</html>
+
