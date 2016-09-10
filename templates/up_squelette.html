@@ -14,21 +14,9 @@
     <div id="titre_principal">
         <h1>Anatomie en ligne</h1>
     </div>
-    <nav id="menu">
-        <table class="left">
-            <tr>
-                <td id="menu1" >
-                    <p>Upload</p>
-                </td>
-                <td id="menu2">
-                    <p>Search</p>
-                </td>
-                <td id="menu3">
-                    <p></p>
-                </td>
-            </tr>
-        </table>
-        </nav>
+		{% block navbar %}
+		{{nav.top.render()}}
+		{% endblock %}
 </header>
 
 {# on affiche les messages d'erreur puis les messages de succes #}
@@ -50,4 +38,3 @@
 
 </body>
 </html>
-

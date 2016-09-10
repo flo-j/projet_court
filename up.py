@@ -9,10 +9,31 @@ import sqlite3
 import PIL
 from PIL import Image
 import re
-
+from flask_nav.elements import Navbar, View
+from flask_script import Manager
+from flask_bootstrap import *
+from flask_nav import *
 app = Flask(__name__)
 app.secret_key = 'd66HR8dç"f_-àgjYYic*dh'
 DOSSIER_UPS = 'static/ups/'
+
+
+#déclare le plug-in flask-script
+manager = Manager( app)
+#déclare le plug-in flask-bootStrap
+bootstrap = Bootstrap(app)
+#j'instancie le plug-in flask-Nav
+nav = Nav()
+#je déclare le plug-in dans l'application
+nav.init_app(app)
+#je déclare une barre de navigation contenant les routes
+mynavbar = Navbar(
+      'mysite',
+      View('Upload', 'upload'),
+      View('gallery', 'liste_upped'))
+#je donne au plug-in ma barre de navigation
+nav.register_element('top', mynavbar)
+
 
 def extension_ok(nomfic):
     """ Renvoie True si le fichier possède une extension d'image valide. """
@@ -73,7 +94,7 @@ def recup_info(id):
     info={}
     info["id"] = id
     conn = sqlite3.connect('data.db')
-    cursor = conn.execute("select * from img where id=?",(informations[ico]['id'],))
+    cursor = conn.execute("select * from img where id=?",(id,))
     for row in cursor:
         info["datecreation"]=row[2]
         info['datemodif']=row[3]
@@ -91,32 +112,22 @@ def recup_id(chemin):
 def liste_upped():
 
     images = [img for img in os.listdir(DOSSIER_UPS) if extension_ok(img)] # la liste des images dans le dossier
-    icones = ['ups/'+img for img in os.listdir(DOSSIER_UPS) if is_resized(img)]
+    icones = [img for img in os.listdir(DOSSIER_UPS) if is_resized(img)]
     informations={}
     for ico in icones:
         informations[ico]={}
-        pat="[0-9]+"
-        prog=re.compile(pat)
-        id=prog.search(ico).group()
-        informations[ico]["id"] = id
-        conn = sqlite3.connect('data.db')
-        cursor = conn.execute("select * from img where id=?",(informations[ico]['id'],))
-        for row in cursor:
-            informations[ico]["datecreation"]=row[2]
-            informations[ico]['datemodif']=row[3]
-            informations[ico]['kw']=row[4]
-
+        id = recup_id(ico)
+        informations[ico]=recup_info(id)
 
     return render_template('up_liste.html', images=images, icones=icones,info=informations)
 
-@app.route('/up/view/<nom>')
+@app.route('/view/<nom>')
 def upped(nom):
     nom = secure_filename(nom)
-    if os.path.isfile(DOSSIER_UPS + nom): # si le fichier existe
-        return send_file(DOSSIER_UPS + nom, as_attachment=True) # on l'envoie
-    else:
-        flash(u'Fichier {nom} inexistant.'.format(nom=nom), 'error')
-        return redirect(url_for('up_image.html',nom=nom)) # sinon on redirige vers la liste des images, avec un message d'erreur
+    iden = recup_id(nom)
+    info=recup_info(iden)
+    img=nom
+    return render_template('up_image.html',img=img,info=info)# sinon on redirige vers la liste des images, avec un message d'erreur
 
 if __name__ == '__main__':
     app.run(debug=True)
