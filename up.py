@@ -102,6 +102,7 @@ def upload():
         #    flash(u'Mot de passe incorrect', 'error')
     return render_template('up_up.html')
 
+
 def resize(filename, basewidth):
     basewidth = basewidth
     img = Image.open(filename)
@@ -134,17 +135,23 @@ def recup_id(chemin):
 
 @app.route('/view/')
 def liste_upped():
+    conn = sqlite3.connect('data2.db')
+    #images = [img for img in os.listdir('static/'+DOSSIER_UPS) if extension_ok(img)] # la liste des images dans le dossier
+    #icones = [img for img in os.listdir('static/'+DOSSIER_UPS) if is_mini(img)]
+    res = conn.execute("select chemin from img")
+    vignette = []
+    for row in res:
+        result = row[0].split("/")[1]
+        vignette.append(result)
 
-    images = [img for img in os.listdir('static/'+DOSSIER_UPS) if extension_ok(img)] # la liste des images dans le dossier
-    icones = [img for img in os.listdir('static/'+DOSSIER_UPS) if is_mini(img)]
     informations={}
-    for ico in icones:
+    for ico in vignette:
         informations[ico]={}
         id = recup_id(ico)
         informations[ico]=recup_info(id)
         informations[ico]['chemin']=get_chemin_mini(id)
 
-    return render_template('up_liste.html', images=images, icones=icones,info=informations)
+    return render_template('up_liste.html', icones=vignette,info=informations)
 @app.route('/mentions_legales')
 def mentions_legales():
     return render_template('up_legales.html')

@@ -82,7 +82,7 @@ label {
 	margin-left: 130px;
 	position: relative;
 	top: 3px;  }
-#btsub {
+.btsub {
 	background-color:#64193E;
     text-align: center;
     font-size: 1.8em;
