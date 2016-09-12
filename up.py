@@ -15,7 +15,7 @@ from flask_bootstrap import *
 from flask_nav import *
 app = Flask(__name__)
 app.secret_key = 'd66HR8dç"f_-àgjYYic*dh'
-DOSSIER_UPS = 'static/ups/'
+DOSSIER_UPS = 'ups/'
 
 
 #déclare le plug-in flask-script
@@ -30,7 +30,9 @@ nav.init_app(app)
 mynavbar = Navbar(
       'mysite',
       View('Upload', 'upload'),
-      View('gallery', 'liste_upped'))
+      View('gallery', 'liste_upped'),
+      View('mentions legales','mentions_legales'),
+      )
 #je donne au plug-in ma barre de navigation
 nav.register_element('top', mynavbar)
 
@@ -43,8 +45,8 @@ def extension(nomfichier):
     return nomfichier.rsplit('.', 1)[1]
 
 def createNewPicture(nomfic,kw):
-    conn = sqlite3.connect('data.db')
-    conn.execute("insert into img (CHEMIN, CREATION, MODIF,KEYWORDS) VALUES('static/ups/prov2',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,?)",(kw,))
+    conn = sqlite3.connect('data2.db')
+    conn.execute("insert into img (CHEMIN,CHEMIN_MINI, CREATION, MODIF,KEYWORDS) VALUES('static/ups/prov2','static/ups/prov',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,?)",(kw,))
     cursor = conn.execute("select id from IMG where creation == (select MAX(creation) from img)")
     for row in cursor:
         last_insert = "img"+str(row[0])+"."+extension(nomfic)
@@ -52,9 +54,29 @@ def createNewPicture(nomfic,kw):
     conn.commit()
     return last_insert
 
-@app.route('/', methods=['GET', 'POST'])
+def update_chemin_mini(id, value):
+    conn = sqlite3.connect('data2.db')
+    conn.execute('update img set CHEMIN_MINI=? where id==?',(value,id))
+    conn.commit()
+    return 0
+
+def get_chemin_mini(id):
+    conn = sqlite3.connect('data2.db')
+    cursor = conn.execute("select chemin_mini from img where id==?",(id,))
+    for row in cursor:
+        res=row[0]
+    return res
+
+def get_chemin(id):
+    conn = sqlite3.connect('data2.db')
+    cursor = conn.execute("select chemin from img where id==?",(id,))
+    for row in cursor:
+        res=row[0]
+    return res
+
+
+@app.route('/',methods=['GET', 'POST'])
 def upload():
-    print " upload"
     if request.method == 'POST':
        # if request.form['pw'] == 'up': # on vérifie que le mot de passe est bon
             f = request.files['fic']
@@ -62,15 +84,15 @@ def upload():
                 if extension_ok(f.filename): # on vérifie que son extension est valide
                     keywords = request.form['kw']
                     name = createNewPicture(f.filename,keywords)
-                    f.save(DOSSIER_UPS + name)
+                    f.save('static/'+DOSSIER_UPS + name)
+                    f=resize('static/'+DOSSIER_UPS+name,400)
+                    f.save('static/'+DOSSIER_UPS+name)
                     flash(u'Image envoyée !', 'succes')
                     # a mettre dans une fonction, et nommer le forum
-                    basewidth = 100
-                    img = Image.open(DOSSIER_UPS+name)
-                    wpercent = (basewidth/float(img.size[0]))
-                    hsize = int((float(img.size[1])*float(wpercent)))
-                    img2 = img.resize((basewidth,hsize), PIL.Image.ANTIALIAS)
-                    img2.save(DOSSIER_UPS+"resized_"+name)
+                    img2 = resize('static/'+DOSSIER_UPS+name, 100)
+                    name_mini = DOSSIER_UPS+"mini_"+name
+                    img2.save('static/'+name_mini)
+                    update_chemin_mini(recup_id(name_mini),name_mini)
                     return redirect(url_for('liste_upped'))
                 else:
                     flash(u'Ce fichier ne porte pas une extension autorisée !', 'error')
@@ -80,25 +102,27 @@ def upload():
         #    flash(u'Mot de passe incorrect', 'error')
     return render_template('up_up.html')
 
+def resize(filename, basewidth):
+    basewidth = basewidth
+    img = Image.open(filename)
+    wpercent = (basewidth/float(img.size[0]))
+    hsize = int((float(img.size[1])*float(wpercent)))
+    img2 = img.resize((basewidth,hsize), PIL.Image.ANTIALIAS)
+    return img2
 
-def is_resized(filename):
-    return extension_ok(filename) and 'resized' in filename
-
-def recup_info(chemin):
-    conn = sqlite3.connect('data.db')
-    cursor = conn.execute("select * from IMG where chemin == ?",(chemin,))
-
+def is_mini(filename):
+    return extension_ok(filename) and 'mini' in filename
 
 
 def recup_info(id):
     info={}
     info["id"] = id
-    conn = sqlite3.connect('data.db')
+    conn = sqlite3.connect('data2.db')
     cursor = conn.execute("select * from img where id=?",(id,))
     for row in cursor:
-        info["datecreation"]=row[2]
-        info['datemodif']=row[3]
-        info['kw']=row[4]
+        info["datecreation"]=row[3]
+        info['datemodif']=row[4]
+        info['kw']=row[5]
     return info
 
 
@@ -111,22 +135,26 @@ def recup_id(chemin):
 @app.route('/view/')
 def liste_upped():
 
-    images = [img for img in os.listdir(DOSSIER_UPS) if extension_ok(img)] # la liste des images dans le dossier
-    icones = [img for img in os.listdir(DOSSIER_UPS) if is_resized(img)]
+    images = [img for img in os.listdir('static/'+DOSSIER_UPS) if extension_ok(img)] # la liste des images dans le dossier
+    icones = [img for img in os.listdir('static/'+DOSSIER_UPS) if is_mini(img)]
     informations={}
     for ico in icones:
         informations[ico]={}
         id = recup_id(ico)
         informations[ico]=recup_info(id)
+        informations[ico]['chemin']=get_chemin_mini(id)
 
     return render_template('up_liste.html', images=images, icones=icones,info=informations)
+@app.route('/mentions_legales')
+def mentions_legales():
+    return render_template('up_legales.html')
 
 @app.route('/view/<nom>')
 def upped(nom):
     nom = secure_filename(nom)
     iden = recup_id(nom)
     info=recup_info(iden)
-    img=nom
+    img=get_chemin(iden)
     return render_template('up_image.html',img=img,info=info)# sinon on redirige vers la liste des images, avec un message d'erreur
 
 if __name__ == '__main__':

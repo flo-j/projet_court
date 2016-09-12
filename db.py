@@ -3,7 +3,7 @@
 
 import sqlite3
 print "douze"
-conn = sqlite3.connect('data.db')
+conn = sqlite3.connect('data2.db')
 cursor =  conn.execute("select * from img")
 print "cursor"
 for row in cursor:
@@ -12,10 +12,11 @@ for row in cursor:
     print "creation", row[2]
 print "end"
 
-    conn.execute('''DROP TABLE IMG''')
-    conn.execute(''' CREATE TABLE IMG
+conn.execute('''DROP TABLE IMG''')
+conn.execute(''' CREATE TABLE IMG
     (ID INTEGER PRIMARY KEY AUTOINCREMENT,
     CHEMIN VARCHAR NOT NULL UNIQUE,
+    CHEMIN_MINI VARCHAR NOT NULL UNIQUE,
     CREATION DATE NOT NULL,
     MODIF DATE NOT NULL,
-    KEYWORDS VARCHAR NOT NULL);''') 
+    KEYWORDS VARCHAR NOT NULL);''')

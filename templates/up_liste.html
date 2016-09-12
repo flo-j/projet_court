@@ -11,9 +11,8 @@
 {% if icones %}
 <div id="carre">
 	{%for ico in icones %}
-	{{ico}}
 		<div id="miniatures">
-		<a href="{{url_for('upped',nom=ico)}}"><img src="{{url_for('static',filename=ico)}}"/></a>
+		<a href="{{url_for('upped',nom=ico)}}"> <img src="{{url_for('static',filename=info[ico]['chemin'])}}"/></a>
 		<b>date de creation</b> : {{info[ico]['datecreation']}}
 		<b>date de dernière modification</b>: {{info[ico]['datemodif']}}
 		<b>mots clés</b> : {{info[ico]['kw']}}
