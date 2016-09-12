@@ -108,7 +108,7 @@ def upload():
 def research():
     if request.method == "POST":
         keyword = request.form['kws']
-        return redirect(url_for('research_res',keyword))
+        #return redirect(url_for('research_res',keyword))
     return render_template('up_research.html')
 
 @app.route('/research_res/',methods=['GET','POST'])
