@@ -32,6 +32,7 @@ mynavbar = Navbar(
       View('Upload', 'upload'),
       View('gallery', 'liste_upped'),
       View('mentions legales','mentions_legales'),
+      View('recherche','research')
       )
 #je donne au plug-in ma barre de navigation
 nav.register_element('top', mynavbar)
@@ -46,7 +47,8 @@ def extension(nomfichier):
 
 def createNewPicture(nomfic,kw):
     conn = sqlite3.connect('data2.db')
-    conn.execute("insert into img (CHEMIN,CHEMIN_MINI, CREATION, MODIF,KEYWORDS) VALUES('static/ups/prov2','static/ups/prov',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,?)",(kw,))
+    kws=kw.replace(" ",";")
+    conn.execute("insert into img (CHEMIN,CHEMIN_MINI, CREATION, MODIF,KEYWORDS) VALUES('static/ups/prov2','static/ups/prov',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,?)",(kws,))
     cursor = conn.execute("select id from IMG where creation == (select MAX(creation) from img)")
     for row in cursor:
         last_insert = "img"+str(row[0])+"."+extension(nomfic)
@@ -102,6 +104,32 @@ def upload():
         #    flash(u'Mot de passe incorrect', 'error')
     return render_template('up_up.html')
 
+@app.route('/research/',methods=['GET','POST'])
+def research():
+    if request.method == "POST":
+        keyword = request.form['kws']
+        return redirect(url_for('research_res',keyword))
+    return render_template('up_research.html')
+
+@app.route('/research_res/',methods=['GET','POST'])
+def research_res(keyword):
+    conn = sqlite3.connect('data2.db')
+    #images = [img for img in os.listdir('static/'+DOSSIER_UPS) if extension_ok(img)] # la liste des images dans le dossier
+    #icones = [img for img in os.listdir('static/'+DOSSIER_UPS) if is_mini(img)]
+    res = conn.execute("select chemin from img where keywords like %?%",(keyword,))
+    vignette = []
+    for row in res:
+        result = row[0].split("/")[1]
+        vignette.append(result)
+    informations={}
+    for ico in vignette:
+        informations[ico]={}
+        id = recup_id(ico)
+        informations[ico]=recup_info(id)
+        informations[ico]['chemin']=get_chemin_mini(id)
+    return render_template('up_research_res.html', icones=vignette,info=informations,word=keyword)
+
+
 
 def resize(filename, basewidth):
     basewidth = basewidth
@@ -143,7 +171,6 @@ def liste_upped():
     for row in res:
         result = row[0].split("/")[1]
         vignette.append(result)
-
     informations={}
     for ico in vignette:
         informations[ico]={}
@@ -156,13 +183,20 @@ def liste_upped():
 def mentions_legales():
     return render_template('up_legales.html')
 
-@app.route('/view/<nom>')
+@app.route('/view/<nom>', methods=['GET','POST'])
 def upped(nom):
     nom = secure_filename(nom)
     iden = recup_id(nom)
     info=recup_info(iden)
     img=get_chemin(iden)
-    return render_template('up_image.html',img=img,info=info)# sinon on redirige vers la liste des images, avec un message d'erreur
+    if request.method=="POST":
+        conn=sqlite3.connect('data2.db')
+        conn.execute("delete from img where id ==?",(iden,))
+        conn.commit()
+        return redirect(url_for('liste_upped'))
+
+
+    return render_template('up_image.html',img=img,info=info)# sinon onconn=sqlite3.connect redirige vers la liste des images, avec un message d'erreur
 
 if __name__ == '__main__':
     app.run(debug=True)

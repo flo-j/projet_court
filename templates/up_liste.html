@@ -14,7 +14,9 @@
 		<div id="miniatures">
 		<a href="{{url_for('upped',nom=ico)}}"> <img src="{{url_for('static',filename=info[ico]['chemin'])}}"/></a>
 		<b>date de creation</b> : {{info[ico]['datecreation']}}
+		{% if info[ico]['datecreation'] !=  info[ico]['datemodif'] %}
 		<b>date de dernière modification</b>: {{info[ico]['datemodif']}}
+		{%endif %}
 		<b>mots clés</b> : {{info[ico]['kw']}}
 	{% endfor %}
 
