@@ -106,28 +106,30 @@ def upload():
 
 @app.route('/research/',methods=['GET','POST'])
 def research():
+    print "aaaaaaaa"
     if request.method == "POST":
+        print "aaaaa"
         keyword = request.form['kw']
         return redirect(url_for('research_res',keyword=keyword))
     return render_template('up_research.html')
 
-#@app.route('/research_res/',methods=['GET','POST'])
-#def research_res(keyword):
+@app.route('/research_res/<keyword>',methods=['GET','POST'])
+def research_res(keyword):
+    conn = sqlite3.connect('data2.db')
     #images = [img for img in os.listdir('static/'+DOSSIER_UPS) if extension_ok(img)] # la liste des images dans le dossier
     #icones = [img for img in os.listdir('static/'+DOSSIER_UPS) if is_mini(img)]
-    # res = conn.execute("select chemin from img where keywords like %?%",(keyword,))
-    # conn = sqlite3.connect('data2.db')
-    # for row in res:
-        # vignette = []
-        # result = row[0].split("/")[1]
-        # vignette.append(result)
-    # informations={}
-    # for ico in vignette:
-        # informations[ico]={}
-        #id = recup_id(ico)
-        #informations[ico]=recup_info(id)
-        #informations[ico]['chemin']=get_chemin_mini(id)
-    #return render_template('up_research_res.html', icones=vignette,info=informations,word=keyword)
+    res  = conn.execute("select chemin from img where keywords like  ? ",('%'+keyword+'%',))
+    vignette = []
+    for row in res:
+        result = row[0].split("/")[1]
+        vignette.append(result)
+    informations={}
+    for ico in vignette:
+        informations[ico]={}
+        id = recup_id(ico)
+        informations[ico]=recup_info(id)
+        informations[ico]['chemin']=get_chemin_mini(id)
+    return render_template('up_research_res.html', icones=vignette,info=informations,word=keyword)
 
 
 
