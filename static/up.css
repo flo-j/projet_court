@@ -20,6 +20,10 @@
 	font-weight: bold;
 	src:url("polices/weblysleekuisbi.ttf");
 }
+a{
+	text-decoration: none;
+	color: black;
+}
 
 header{
     color: black;
@@ -74,7 +78,7 @@ h1 {
 form {
 	font-family: Port Lligat Slab;
 	text-shadow: 1px 1px 2px white;
-	text-align: left; }
+	text-align: center; }
 label {
 	display: block;
 	width: 120px;
@@ -83,7 +87,7 @@ label {
 	position: relative;
 	top: 3px;  }
 .btsub {
-	background-color:#64193E;
+	background-color:#172826;
     text-align: center;
     font-size: 1.8em;
     padding: 4px;
@@ -108,6 +112,13 @@ label {
 	text-decoration-color: grey;
 	margin-bottom: 10px;
  }
+ .navbar{
+	 color: black;
+	 text-decoration-style: none;
+	 display: inline;
+	 padding : 2px;
+	 list-style-type: none;
+ }
 /*.succes li {
 	background-image: -moz-linear-gradient(#B7FF4F, #6CD043);
 	background-image: -webkit-linear-gradient(#B7FF4F, #6CD043); }
@@ -119,3 +130,16 @@ label {
 	list-style-type: circle;
 	font-family: Port Lligat Slab;
 */
+div.focus-image {
+  border:1px solid #dddddd;
+  display:inline-block;
+  position:relative;
+  cursor:pointer;
+}
+div.focus-image div {
+  display:none;
+  border:2px solid red;
+  position:absolute;
+  left:90px; /*x*/
+  top:60px; /*y*/
+}

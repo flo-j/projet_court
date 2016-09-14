@@ -3,19 +3,30 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<link href="{{url_for('static',filename="tux_rond.png")}}" rel="icon"><!-- pour le logo dans l'onglet! -->
 	<title>{% block title %}{% endblock %}</title>
 	<meta name="viewport" content="width=device-width,initial-scale=1">
 	<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Merienda One">
 	<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Port Lligat Slab">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='up.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='up.css') }}">
+	<script type="text/javascript" src="{{url_for('static',filename='javascript.js')}}"></script>
+
 </head>
+
 <body>
 <header>
     <div id="titre_principal">
         <h1>Anatomie en ligne</h1>
     </div>
 		{% block navbar %}
-		{{nav.top.render()}}
+
+			<img src="{{url_for('static',filename="tux_rond.png")}}"/>
+			<a href="{{url_for('upload')}}"> Upload </a>
+			<a href="{{url_for('liste_upped')}}"> Galerie </a>
+			<a href="{{url_for('research')}}"> Recherche </a>
+			<a href="{{url_for('mentions_legales')}}"> Mentions légales </a>
+
+
 		{% endblock %}
 </header>
 

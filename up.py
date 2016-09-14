@@ -27,15 +27,16 @@ nav = Nav()
 #je déclare le plug-in dans l'application
 nav.init_app(app)
 #je déclare une barre de navigation contenant les routes
-mynavbar = Navbar(
-      'mysite',
+topbar = Navbar(
+      '',
       View('Upload', 'upload'),
       View('gallery', 'liste_upped'),
       View('mentions legales','mentions_legales'),
       View('recherche','research')
       )
 #je donne au plug-in ma barre de navigation
-nav.register_element('top', mynavbar)
+nav.register_element('top', topbar)
+nav.init_app(app)
 
 
 def extension_ok(nomfic):
@@ -106,9 +107,7 @@ def upload():
 
 @app.route('/research/',methods=['GET','POST'])
 def research():
-    print "aaaaaaaa"
     if request.method == "POST":
-        print "aaaaa"
         keyword = request.form['kw']
         return redirect(url_for('research_res',keyword=keyword))
     return render_template('up_research.html')
@@ -131,7 +130,28 @@ def research_res(keyword):
         informations[ico]['chemin']=get_chemin_mini(id)
     return render_template('up_research_res.html', icones=vignette,info=informations,word=keyword)
 
+@app.route('/update/<img>',methods=['GET','POST'])
+def update_keyword(img):
+    #nom = secure_filename(nom)
+    iden = recup_id(img)
+    info=recup_info(iden)
+    nom=get_chemin(iden)
+    if request.method=="POST":
+        newKwords = request.form['kw'].replace(" ",";")
+        conn=sqlite3.connect('data2.db')
+        conn.execute("update img set keywords=? where id==?",(newKwords,iden))
+        conn.execute("update img set modif=CURRENT_TIMESTAMP where id==?",(iden,))
+        conn.commit()
+        return redirect(url_for('liste_upped'))
+    return render_template('up_modify.html',chem=nom,info = info,img=img)
 
+@app.route('/annotate/<img>',methods=['GET','POST'])
+def annotate(img):
+    iden = recup_id(img)
+    info=recup_info(iden)
+    nom=get_chemin(iden)
+
+    return render_template('up_annotate.html',chem=nom,img=img)
 
 def resize(filename, basewidth):
     basewidth = basewidth
@@ -153,7 +173,7 @@ def recup_info(id):
     for row in cursor:
         info["datecreation"]=row[3]
         info['datemodif']=row[4]
-        info['kw']=row[5]
+        info['kw']=row[5].replace(";"," ")
     return info
 
 
@@ -198,7 +218,7 @@ def upped(nom):
         return redirect(url_for('liste_upped'))
 
 
-    return render_template('up_image.html',img=img,info=info)# sinon onconn=sqlite3.connect redirige vers la liste des images, avec un message d'erreur
+    return render_template('up_image.html',img=img,info=info,nom=nom)# sinon onconn=sqlite3.connect redirige vers la liste des images, avec un message d'erreur
 
 if __name__ == '__main__':
     app.run(debug=True)
