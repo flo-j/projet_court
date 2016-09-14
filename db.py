@@ -20,3 +20,14 @@ conn.execute(''' CREATE TABLE IMG
     CREATION DATE NOT NULL,
     MODIF DATE NOT NULL,
     KEYWORDS VARCHAR NOT NULL);''')
+conn.execute('''create table annotation
+	(
+	X1 INTEGER NOT NULL,
+	Y1 INTEGER NOT NULL,
+	X2 INTEGER NOT NULL,
+	Y2 INTEGER NOT NULL,
+	IMG integer not null,
+	NB INTEGER NOT NULL,
+	KEYWORDS VARCHAR NOT NULL,
+	foreign key(IMG) references IMG(id),
+	PRIMARY KEY (X1,Y1,X2,Y2,IMG) );''')

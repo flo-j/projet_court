@@ -150,7 +150,19 @@ def annotate(img):
     iden = recup_id(img)
     info=recup_info(iden)
     nom=get_chemin(iden)
-
+    if request.method=="post":
+        iden = recup_id(img)
+        info=recup_info(iden)
+        nom=get_chemin(iden)
+        x1=request.form['x']
+        x2=request.form['x2']
+        y1=request.form['y']
+        y2=request.form['y2']
+        keywords=request.form['kw'].replace(' ',';')
+        conn.execute(''' insert into annotation (img,x1,x2,y1,y2,keywords,nb)
+                    values (?,?,?,?,?,?)''',(iden,x1,x2,y1,y2,keywords,1))
+        conn.commit()
+        return redirect(url_for('liste_upped'))
     return render_template('up_annotate.html',chem=nom,img=img)
 
 def resize(filename, basewidth):
