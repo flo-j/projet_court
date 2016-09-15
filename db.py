@@ -20,6 +20,7 @@ conn.execute(''' CREATE TABLE IMG
     CREATION DATE NOT NULL,
     MODIF DATE NOT NULL,
     KEYWORDS VARCHAR NOT NULL);''')
+conn.execute('''DROP TABLE annotation''')
 conn.execute('''create table annotation
 	(
 	X1 INTEGER NOT NULL,

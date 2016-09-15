@@ -144,23 +144,49 @@ def update_keyword(img):
         conn.commit()
         return redirect(url_for('liste_upped'))
     return render_template('up_modify.html',chem=nom,info = info,img=img)
+def recup_annotation(id):
+
+    #info["id"] = id
+    conn = sqlite3.connect('data2.db')
+    cursor = conn.execute("select * from annotation where img==?",(id,))
+    information = []
+    for row in cursor:
+        info={}
+        info["x1"]=row[0]
+        info['y1']=row[1]
+        info['w'] = row[2]
+        info['h'] = row[3]
+        info['kw'] = row[6]
+        info['nb'] = row[5]
+        information.append(info)
+    return information
+
+@app.route('/annoted/<img>',methods=['GET','POST'])
+def annoted(img):
+    iden = recup_id(img)
+    info=recup_info(iden)
+    nom=get_chemin(iden)
+    info=recup_annotation(iden)
+    return render_template('up_annoted.html',chem=nom,img=img,info=info)
+
 
 @app.route('/annotate/<img>',methods=['GET','POST'])
 def annotate(img):
     iden = recup_id(img)
     info=recup_info(iden)
     nom=get_chemin(iden)
-    if request.method=="post":
-        iden = recup_id(img)
-        info=recup_info(iden)
-        nom=get_chemin(iden)
+    if request.method=="POST":
+        conn = sqlite3.connect('data2.db')
         x1=request.form['x']
-        x2=request.form['x2']
+        x2=request.form['w']
         y1=request.form['y']
-        y2=request.form['y2']
+        y2=request.form['h']
         keywords=request.form['kw'].replace(' ',';')
+        cursor=conn.execute('''select count(img) from annotation where img==?''',(iden,))
+        for row in cursor:
+            nb=row[0]+1
         conn.execute(''' insert into annotation (img,x1,x2,y1,y2,keywords,nb)
-                    values (?,?,?,?,?,?)''',(iden,x1,x2,y1,y2,keywords,1))
+                    values (?,?,?,?,?,?,?)''',(iden,x1,x2,y1,y2,keywords,nb))
         conn.commit()
         return redirect(url_for('liste_upped'))
     return render_template('up_annotate.html',chem=nom,img=img)
